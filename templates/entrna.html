@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>RNAModeler</title>
+
+    <link href='https://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href= "{% static  "style.css" %}" >
+
+
+
+</head>
+<script>
+    submitForms = function() {
+        var seqText = document.getElementById('sequence').value;
+        var structText = document.getElementById('structure').value;
+        var emailId = document.getElementById('inputEmail').value;
+        var batchMode = document.getElementById('batchMode').value;
+        var ctFormVar = document.getElementById('ctfile').value;
+
+
+        console.log(ctFormVar);
+
+        if(emailId.length === 0) {
+            emailId = "dhrumil2312@gmail.com";
+        }
+
+        if(batchMode.length !== 0){
+            //alert('Submitting bat');
+            document.getElementById('batchModeForm_email').value = emailId;
+            document.forms["batchModeForm"].submit();
+            return;
+        }
+
+        else if(ctFormVar.length !== 0){
+
+            document.getElementById('ct_email').value = emailId;
+            document.forms["CTform"].submit();
+            return;
+        }
+
+        if(seqText.length ===0 ){
+            document.getElementById("errorSequence").innerHTML = "Please Enter the Sequence";
+            document.getElementById("errorSequence").style.color = "red";
+            document.getElementById("errorSequence").style.display = "block";
+            return;
+        }
+        else if(structText.length ===0  ){
+            document.getElementById("error").innerHTML = "Please Enter the Sequence";
+            document.getElementById("error").style.color = "red";
+            document.getElementById("error").style.display = "block";
+            return;
+        }
+
+        else {
+            console.log(structText);
+            document.getElementById('bothTextForm_struct').value = structText;
+            document.getElementById('bothTextForm_email').value = emailId;
+            document.forms["bothTextForm"].submit();
+        }
+
+        return true;
+    }
+
+</script>
+
+<style>
+    div.form {
+
+        padding: 10px;
+        border: 5px solid gray;
+        margin: 0;
+    }
+</style>
+
+<body>
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/rnamainpage">RNA Web Services</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="/rnamodeler">ENTRNA <span class="sr-only">(current)</span></a></li>
+        <li><a href="/qlrna"> QLRNA</a></li>
+
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div id = "main" class="container">
+    <h1 align="center"> ENTRNA </h1>
+
+    Simply paste or upload your sequence below and click Proceed. </p>
+        <div class="form">
+            <form action="" method = "POST" name="bothTextForm">
+                {% csrf_token %}
+                <div class="form_group">
+                    <label> Paste or Type the sequence </label>
+                    <input id="sequence" name="sequence" placeholder="Enter the sequence here" type="textarea" align="center" class="form-control"><br>
+                </div>
+                <div class="form_group">
+                     <label> Paste or Type the structure </label>
+                    <input id="structure" type="textarea" placeholder="Enter the structure here" name="structure"  align="center" class="form-control">
+                </div>
+                <input id="bothTextForm_email" type="hidden" name="emailId" placeholder="Enter your email id here." class="form-control">
+            </form>
+
+        </div>
+    <br>
+     <p><strong> OR </strong></p>
+    <br>
+    <div class="form">
+        <form action="" method = "POST"  name="CTform" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label> Upload a CT file.  </label>
+            <input id="ctfile" name="ct_file" placeholder="Select a file" type="file" accept="*" class="form-control"><br>
+            <input id="ct_email" type="hidden" name="ct_emailId" class="form-control">
+        </form>
+
+    </div>
+    <br>
+     <p><strong> OR </strong></p>
+    <br>
+
+<div class="form" >
+    <form action="" method = "POST"  name="batchModeForm" enctype="multipart/form-data">
+        {% csrf_token %}
+         <label> Upload a single file. Please enter all the sequence in one line, separated by comma and in next line same number of structures separated by comma.  </label>
+        <input id="batchMode" name="file" placeholder="Select a file" type="file" accept=".txt,.doc" class="form-control"><br>
+         <input id="batchModeForm_email" type="hidden" name="emailId" class="form-control">
+    </form>
+
+</div>
+
+
+    <br> <p><strong> To receive the results in email please enter the email id below.</strong></p><br>
+    <div class="form">
+
+        <label>Email Id: </label>
+        <input id="inputEmail" type="email" name="emailId" placeholder="Enter your email id here." class="form-control"> <br>
+    </div>
+
+    <input name="submit" type="submit" value=" Submit " align="center" class="btn btn-default" onclick="submitForms()"><br><br><br>
+
+</div>
+
+<nav class="navbar navbar-default navbar-bottom">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="rnamodeler"> RNA Modeler </a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="/contact_us"> Contact Us</a></li>
+        </ul>
+    </div>
+</nav>
+
+</body>
+
+</html>

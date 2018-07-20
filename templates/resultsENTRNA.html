@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>RNAModeler</title>
+        <link href='https://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href= "{% static  "style.css" %}" >
+    <link href="https://cdn.pydata.org/bokeh/release/bokeh-0.13.0.min.css" rel="stylesheet" type="text/css">
+
+
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+    /* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
+
+<body>
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/rnamainpage">RNA Web Services</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="/rnamodeler">ENTRNA <span class="sr-only">(current)</span></a></li>
+        <li><a href="/qlrna"> QLRNA</a></li>
+
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div id = "main" class="container-fluid" >
+    <div class="row">
+        <div id="result" class="col-sm-6" >
+            <h1> ENTRNA</h1>
+            <h2> Foldability Results </h2>
+            <table align="left" class="table table-hover">
+                <tbody>
+            {% for sequence , structure, foldability , fe , mfe , mfe_str in allContent %}
+                <tr>
+                    <td> The sequence entered is :</td>
+                    <td> <strong> {{ sequence }} </strong></td>
+                </tr>
+                <tr>
+                    <td> The structure entered is : </td>
+                    <td> <strong>{{ structure }} </strong> </td>
+                </tr>
+                <tr>
+                    <td> Foldability of the RNA entered is : </td>
+                    <td> <strong>{{ foldability }} </strong></td>
+                </tr>
+                <tr>
+                    <td> Time at which the sequence is entered: </td>
+                    <td> <strong> {{ submitted_time }} </strong></td>
+                </tr>
+                <tr>
+                    <td> Free Energy of this pair: </td>
+                    <td> <strong> {{ fe }}</strong></td>
+                </tr>
+                <tr>
+                    <td> Minimum Free Energy of the sequence is : </td>
+                    <td> <strong> {{ mfe }}</strong></td>
+                </tr>
+                <tr>
+                    <td> MFE structure of the sequence is : </td>
+                    <td> <strong> {{ mfe_str }}</strong></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="invalidinput" style="display: none">
+            {% for sequence,struture in invalid %}
+            <p> Invalid Sequence and Structure pair</p>
+            <p> Sequence: {{ sequence }}</p>
+            <p> Structure : {{ struture }}</p>
+            {% endfor %}
+        </div>
+
+        <div id="bok" class="col-sm-6">
+            {{ div | safe }}
+        </div>
+    </div>
+
+</div>
+<nav class="navbar navbar-default navbar-bottom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/rnamodeler">RNA Modeler </a>
+    </div>
+      <ul class="nav navbar-nav navbar-right">
+          <li><a href="/contact_us"> Contact Us</a></li>
+      </ul>
+  </div>
+</nav>
+
+
+</body>
+
+
+<script src="https://cdn.pydata.org/bokeh/release/bokeh-0.13.0.min.js"></script>
+
+    {{ script | safe }}
+
+</html>

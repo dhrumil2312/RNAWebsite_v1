@@ -1,0 +1,102 @@
+Group - DataBassHunterz
+Members:
+Kiran Teja Settipalli
+Rohit Polisetti
+Mayuri Kambli
+Dhrumil Parmar
+
+Link to Video - https://www.youtube.com/watch?v=uRJpCL11oN0&t=375s
+
+Code -
+
+# Task 1 and 2.a - Create GeoSpark SpatialRDD(PointRDD) and query the PointRDD using Spatial Range Query
+import org.datasyslab.geospark.spatialOperator.RangeQuery; 
+import org.datasyslab.geospark.spatialRDD.PointRDD;
+import com.vividsolutions.jts.geom.Envelope;
+import org.datasyslab.geospark.enums.FileDataSplitter;
+import org.apache.spark.storage.StorageLevel
+val queryEnvelope=new Envelope (-113.79,-109.73,32.99,35.08);
+val objectRDD = new PointRDD(sc, "hdfs://master:54310/user/hadoop/arealm.csv", 0, FileDataSplitter.CSV, false, StorageLevel.MEMORY_ONLY); 
+val resultSize = RangeQuery.SpatialRangeQuery(objectRDD, queryEnvelope, false, false).count();
+
+# Task 2.b - Build Rtree index and then Spatial Range Query
+import org.datasyslab.geospark.spatialOperator.RangeQuery; 
+import org.datasyslab.geospark.spatialRDD.PointRDD;
+import com.vividsolutions.jts.geom.Envelope;
+import org.datasyslab.geospark.enums.FileDataSplitter;
+import org.datasyslab.geospark.enums.IndexType;
+import org.apache.spark.storage.StorageLevel
+val queryEnvelope=new Envelope (-113.79,-109.73,32.99,35.08);
+val objectRDD = new PointRDD(sc, "hdfs://master:54310/user/hadoop/arealm.csv", 0, FileDataSplitter.CSV, false, StorageLevel.MEMORY_ONLY); 
+objectRDD.buildIndex(IndexType.RTREE,false);
+val resultSize = RangeQuery.SpatialRangeQuery(objectRDD, queryEnvelope, false, true).count();
+
+
+# Task 3.a - Query PointRDD using Spatial KNN Query without index
+import org.datasyslab.geospark.spatialOperator.KNNQuery;
+import org.datasyslab.geospark.spatialRDD.PointRDD;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Coordinate;
+import org.datasyslab.geospark.enums.FileDataSplitter;
+import org.apache.spark.storage.StorageLevel
+val fact=new GeometryFactory();
+val queryPoint=fact.createPoint(new Coordinate(35.08, -113.79));
+val objectRDD = new PointRDD(sc, "hdfs://master:54310/user/hadoop/arealm.csv", 0, FileDataSplitter.CSV, false, StorageLevel.MEMORY_ONLY); 
+val resultSize = KNNQuery.SpatialKnnQuery(objectRDD, queryPoint, 5,false).size();
+
+# Task 3.b - Query PointRDD using Spatial KNN Query with R-Tree index
+import org.datasyslab.geospark.spatialOperator.KNNQuery;
+import org.datasyslab.geospark.spatialRDD.PointRDD;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Coordinate;
+import org.datasyslab.geospark.enums.FileDataSplitter;
+import org.datasyslab.geospark.enums.IndexType;
+import org.apache.spark.storage.StorageLevel
+val fact=new GeometryFactory();
+val queryPoint=fact.createPoint(new Coordinate(35.08, -113.79));
+val objectRDD = new PointRDD(sc, "hdfs://master:54310/user/hadoop/arealm.csv", 0, FileDataSplitter.CSV, false, StorageLevel.MEMORY_ONLY); 
+objectRDD.buildIndex(IndexType.RTREE,false);
+val resultSize = KNNQuery.SpatialKnnQuery(objectRDD, queryPoint, 5,true).size();
+
+# Task 4.a Create RectangleRDD and Join it to PointRDD using equal grid without R-TREE index
+import org.datasyslab.geospark.spatialOperator.JoinQuery;
+import org.datasyslab.geospark.spatialRDD.PointRDD;
+import org.datasyslab.geospark.spatialRDD.RectangleRDD;
+import org.datasyslab.geospark.enums.FileDataSplitter;
+import org.datasyslab.geospark.enums.GridType;
+import org.apache.spark.storage.StorageLevel
+val objectRDD = new PointRDD(sc, "hdfs://master:54310/user/hadoop/arealm.csv", 0, FileDataSplitter.CSV, false, StorageLevel.MEMORY_ONLY); 
+val rectangleRDD = new RectangleRDD(sc, "hdfs://master:54310/user/hadoop/zcta510.csv", 0, FileDataSplitter.CSV, false, StorageLevel.MEMORY_ONLY); 
+objectRDD.spatialPartitioning(GridType.EQUALGRID);
+rectangleRDD.spatialPartitioning(objectRDD.grids);
+val resultSize = JoinQuery.SpatialJoinQuery(objectRDD,rectangleRDD,false,false).count();
+
+# Task 4.b Create RectangleRDD and Join it to PointRDD using Equal grid with R-Tree index
+import org.datasyslab.geospark.spatialOperator.JoinQuery;
+import org.datasyslab.geospark.spatialRDD.PointRDD;
+import org.datasyslab.geospark.spatialRDD.RectangleRDD;
+import org.datasyslab.geospark.enums.FileDataSplitter;
+import org.datasyslab.geospark.enums.GridType;
+import org.datasyslab.geospark.enums.IndexType;
+import org.apache.spark.storage.StorageLevel
+val objectRDD = new PointRDD(sc, "hdfs://master:54310/user/hadoop/arealm.csv", 0, FileDataSplitter.CSV, false, StorageLevel.MEMORY_ONLY); 
+val rectangleRDD = new RectangleRDD(sc, "hdfs://master:54310/user/hadoop/zcta510.csv", 0, FileDataSplitter.CSV, false); 
+objectRDD.spatialPartitioning(GridType.EQUALGRID);
+objectRDD.buildIndex(IndexType.RTREE,true);
+rectangleRDD.spatialPartitioning(objectRDD.grids);
+val resultSize = JoinQuery.SpatialJoinQuery(objectRDD,rectangleRDD,true, false).count();
+
+# Task 4.c Create RectangleRDD and Join it to PointRDD using R-Tree grid without R-Tree Index
+import org.datasyslab.geospark.spatialOperator.JoinQuery;
+import org.datasyslab.geospark.spatialRDD.PointRDD;
+import org.datasyslab.geospark.spatialRDD.RectangleRDD;
+import org.datasyslab.geospark.enums.FileDataSplitter;
+import org.datasyslab.geospark.enums.GridType;
+import org.apache.spark.storage.StorageLevel
+val objectRDD = new PointRDD(sc, "hdfs://master:54310/user/hadoop/arealm.csv", 0, FileDataSplitter.CSV, false, StorageLevel.MEMORY_ONLY); 
+val rectangleRDD = new RectangleRDD(sc, "hdfs://master:54310/user/hadoop/zcta510.csv", 0, FileDataSplitter.CSV, false, StorageLevel.MEMORY_ONLY); 
+objectRDD.spatialPartitioning(GridType.RTREE);
+rectangleRDD.spatialPartitioning(objectRDD.grids);
+val resultSize = JoinQuery.SpatialJoinQuery(objectRDD,rectangleRDD,false,false).count();
